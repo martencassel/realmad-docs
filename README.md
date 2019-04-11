@@ -506,6 +506,99 @@ The logs:
 If the smart-proxy cant find the plugin provider, where did it go on the host filesystem ? 
 Each plugin has a provider.rb file, so we search for this file on the host:
 
+# Setup the plugin 
+
+I went to https://projects.theforeman.org/projects/foreman/wiki/How_to_Install_a_Smart-Proxy_Plugin
+
+This plugin comes as a Gem, go to section 'https://projects.theforeman.org/projects/foreman/wiki/How_to_Install_a_Smart-Proxy_Plugin'
+
+```
+Chances are plugin that developers already created bundler configuration file that you can use. Check bundler.d/ directory located in plugin gem source directory. Otherwise, It is recommended to use ~foreman-proxy/bundler.d/Gemfile.local.rb so that it is not overwritten by future upgrades. If it's published on rubygems.org, just add the name and the latest released version will be downloaded. Add to bundler.d/Gemfile.local.rb:
+```
+
+This is how to setup:
+
+```bash
+[root@ip-172-31-0-200 bundler.d]# find / -name bundler.d
+/usr/share/foreman/bundler.d
+/usr/share/foreman-proxy/bundler.d
+/usr/share/foreman-proxy/modules/realm_ad/bundler.d
+/usr/local/share/gems/gems/smart_proxy_realm_ad_plugin-0.1/bundler.d
+[root@ip-172-31-0-200 bundler.d]# pwd
+/usr/share/foreman-proxy/bundler.d
+[root@ip-172-31-0-200 bundler.d]# cat 
+bmc.rb                          Gemfile.local.rb                libvirt.rb                      puppet.rb
+dhcp_isc.rb                     krb5.rb                         puppetca_token_whitelisting.rb  realm_freeipa.rb
+[root@ip-172-31-0-200 bundler.d]# cat Gemfile.local.rb 
+gem 'smart_proxy_realm_ad_plugin'
+[root@ip-172-31-0-200 bundler.d]# cat ^C
+[root@ip-172-31-0-200 bundler.d]# service foreman-proxy restart
+Redirecting to /bin/systemctl restart foreman-proxy.service
+[root@ip-172-31-0-200 bundler.d]# 
+```
+
+Looking in the logs we see this:
+```
+2019-04-11T20:22:29  [D] Providers ['puppetca_hostname_whitelisting'] are going to be configured for 'puppetca'
+2019-04-11T20:22:29  [D] Providers ['puppet_proxy_puppet_api'] are going to be configured for 'puppet'
+2019-04-11T20:22:29  [D] Providers ['realm_ad'] are going to be configured for 'realm'
+2019-04-11T20:22:29  [D] 'puppetca_hostname_whitelisting' settings: 'autosignfile': /etc/puppetlabs/puppet/autosign.conf, 'ssldir': /etc/puppetlabs/puppet/ssl, 'use_provider': puppetca_hostname_whitelisting
+2019-04-11T20:22:29  [D] 'puppet_proxy_puppet_api' settings: 'api_timeout': 30 (default), 'classes_retriever': apiv3, 'environments_retriever': apiv3, 'puppet_ssl_ca': /etc/puppetlabs/puppet/ssl/certs/ca.pem, 'puppet_ssl_cert': /etc/puppetlabs/puppet/ssl/certs/ip-172-31-0-200.eu-central-1.compute.internal.pem, 'puppet_ssl_key': /etc/puppetlabs/puppet/ssl/private_keys/ip-172-31-0-200.eu-central-1.compute.internal.pem, 'puppet_url': https://ip-172-31-0-200.eu-central-1.compute.internal:8140, 'puppet_version': 5.5.12, 'use_provider': [:puppet_proxy_puppet_api]
+2019-04-11T20:22:29  [W] Couldn't find settings file /etc/foreman-proxy/settings.d/realm_ad.yml. Using default settings.
+2019-04-11T20:22:29  [D] 'realm_ad' settings: 'use_provider': realm_ad
+2019-04-11T20:22:29  [E] Disabling all modules in the group ['realm_ad', 'realm'] due to a failure in one of them: Parameter 'realm' is expected to have a non-empty value
+2019-04-11T20:22:29  [D] <Array> ["/usr/share/foreman-proxy/lib/proxy/plugin_validators.rb:41:in `validate!'", "/usr/share/foreman-proxy/lib/proxy/plugin_validators.rb:21:in `evaluate_predicate_and_validate!'", "/usr/share/foreman-proxy/lib/proxy/plugin_initializer.rb:333:in `block in execute_validators'", "/usr/share/foreman-proxy/lib/proxy/plugin_initializer.rb:330:in `each'", "/usr/share/foreman-proxy/lib/proxy/plugin_initializer.rb:330:in `inject'", "/usr/share/foreman-proxy/lib/proxy/plugin_initializer.rb:330:in `execute_validators'", "/usr/share/foreman-proxy/lib/proxy/plugin_initializer.rb:324:in `validate_settings'", "/usr/share/foreman-proxy/lib/proxy/plugin_initializer.rb:270:in `load_settings'", "/usr/share/foreman-proxy/lib/proxy/plugin_initializer.rb:249:in `load_provider_settings'", "/usr/share/foreman-proxy/lib/proxy/plugin_initializer.rb:84:in `block in load_provider_settings'", "/usr/share/foreman-proxy/lib/proxy/plugin_initializer.rb:83:in `each'", "/usr/share/foreman-proxy/lib/proxy/plugin_initializer.rb:83:in `load_provider_settings'", "/usr/share/foreman-proxy/lib/proxy/plugin_initializer.rb:165:in `block in initialize_plugins'", "/usr/share/foreman-proxy/lib/proxy/plugin_initializer.rb:165:in `each'", "/usr/share/foreman-proxy/lib/proxy/plugin_initializer.rb:165:in `initialize_plugins'", "/usr/share/foreman-proxy/lib/launcher.rb:168:in `launch'", "/usr/share/foreman-proxy/bin/smart-proxy:6:in `<main>'"]
+```
+
+We have to create a settings file for the plugin:
+
+```bash
+<pre>[root@ip-172-31-0-200 bundler.d]# cat /etc/foreman-proxy/settings.d/realm_ad.yml 
+---
+# Authentication for Kerberos-based Realms
+:realm: EXAMPLE.COM
+
+# Kerberos pricipal used to authenticate against Active Directory
+:principal: realm-proxy@EXAMPLE.COM
+
+# Path to the keytab used to authenticate against Active Directory
+:keytab_path:  /etc/foreman-proxy/realm_ad.keytab
+
+# FQDN of the Domain Controller
+:domain_controller: dc.example.com
+
+# Optional: OU where the machine account shall be placed
+#:ou: OU=Linux,OU=Servers,DC=example,DC=com
+
+# Optional: Prefix for the computername
+#:computername_prefix: &apos;&apos;
+
+# Optional: Generate the computername by calculating the SHA256 hexdigest of the hostname
+#:computername_hash: false
+
+# Optional:  use the fqdn of the host to generate the computername
+#:computername_use_fqdn: false
+[root@ip-172-31-0-200 bundler.d]# 
+```
+
+Then restart the foreman-proxy service.
+We then check the log file:
+
+```bash
+2019-04-11T20:26:41  [D] 'puppet' ports: 'http': false, 'https': true
+2019-04-11T20:26:41  [D] 'realm' settings: 'enabled': true, 'use_provider': realm_ad
+2019-04-11T20:26:41  [D] 'realm' ports: 'http': true, 'https': true
+2019-04-11T20:26:41  [D] 'logs' settings: 'enabled': https
+2019-04-11T20:26:41  [D] 'logs' ports: 'http': false, 'https': true
+2019-04-11T20:26:41  [D] Providers ['puppetca_hostname_whitelisting'] are going to be configured for 'puppetca'
+2019-04-11T20:26:41  [D] Providers ['puppet_proxy_puppet_api'] are going to be configured for 'puppet'
+2019-04-11T20:26:41  [D] Providers ['realm_ad'] are going to be configured for 'realm'
+2019-04-11T20:26:41  [D] 'puppetca_hostname_whitelisting' settings: 'autosignfile': /etc/puppetlabs/puppet/autosign.conf, 'ssldir': /etc/puppetlabs/puppet/ssl, 'use_provider': puppetca_hostname_whitelisting
+2019-04-11T20:26:41  [D] 'puppet_proxy_puppet_api' settings: 'api_timeout': 30 (default), 'classes_retriever': apiv3, 'environments_retriever': apiv3, 'puppet_ssl_ca': /etc/puppetlabs/puppet/ssl/certs/ca.pem, 'puppet_ssl_cert': /etc/puppetlabs/puppet/ssl/certs/ip-172-31-0-200.eu-central-1.compute.internal.pem, 'puppet_ssl_key': /etc/puppetlabs/puppet/ssl/private_keys/ip-172-31-0-200.eu-central-1.compute.internal.pem, 'puppet_url': https://ip-172-31-0-200.eu-central-1.compute.internal:8140, 'puppet_version': 5.5.12, 'use_provider': [:puppet_proxy_puppet_api]
+2019-04-11T20:26:41  [D] 'realm_ad' settings: 'domain_controller': dc.example.com, 'keytab_path': /etc/foreman-proxy/realm_ad.keytab, 'principal': realm-proxy@EXAMPLE.COM, 'realm': EXAMPLE.COM, 'use_provider': realm_ad
+```
+
+
 ```bash
 [root@ip-172-31-0-200 foreman-proxy]# sudo find / -name provider.rb
 /usr/share/foreman/app/services/host_info/provider.rb
