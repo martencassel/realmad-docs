@@ -160,6 +160,185 @@ The foreman-proxy is a webserver that write its logs to /var/log/foreman-proxy/p
 ...
 ```
 
+## Install smart_proxy_realm_ad_plugin 0.1 from rubygems.org
+
+The rubygem is a native extension, is a ruby library that uses a C library to talk to active directory.
+
+```bash
+[centos@ip-172-31-0-200 ~]$ gem install smart_proxy_realm_ad_plugin
+Fetching: rake-compiler-1.0.7.gem (100%)
+Successfully installed rake-compiler-1.0.7
+Fetching: radcli-1.0.0.gem (100%)
+Building native extensions.  This could take a while...
+ERROR:  Error installing smart_proxy_realm_ad_plugin:
+	ERROR: Failed to build gem native extension.
+
+    /usr/bin/ruby extconf.rb
+mkmf.rb can't find header files for ruby at /usr/share/include/ruby.h
+
+
+Gem files will remain installed in /home/centos/.gem/ruby/gems/radcli-1.0.0 for inspection.
+Results logged to /home/centos/.gem/ruby/gems/radcli-1.0.0/ext/radcli/gem_make.out
+[centos@ip-172-31-0-200 ~]$ 
+```
+
+## Ruby Developer Tools to use the C extension
+The rubygem seems to be an C extension, we need GCC and ruby-devel package.
+Lets see what happens.
+
+```
+sudo yum install -y gcc ruby-devel 
+zlib-devel
+```
+Lets see what happens now:
+
+```bash
+[centos@ip-172-31-0-200 ~]$ gem install smart_proxy_realm_ad_plugin
+Building native extensions.  This could take a while...
+ERROR:  Error installing smart_proxy_realm_ad_plugin:
+	ERROR: Failed to build gem native extension.
+
+    /usr/bin/ruby extconf.rb
+creating Makefile
+
+make "DESTDIR="
+gcc -I. -I/usr/include -I/usr/include/ruby/backward -I/usr/include -I. -I/usr/include -I/home/centos/.gem/ruby/gems/radcli-1.0.0/ext/radcli/ext/radcli    -fPIC -O2 -g -pipe -Wall -Wp,-D_FORTIFY_SOURCE=2 -fexceptions -fstack-protector-strong --param=ssp-buffer-size=4 -grecord-gcc-switches -mtune=generic -fPIC -m64 -o radcli.o -c radcli.c
+In file included from ./radcli.h:5:0,
+                 from radcli.c:2:
+./adconn.h:29:23: fatal error: krb5/krb5.h: No such file or directory
+ #include <krb5/krb5.h>
+                       ^
+compilation terminated.
+make: *** [radcli.o] Error 1
+
+
+Gem files will remain installed in /home/centos/.gem/ruby/gems/radcli-1.0.0 for inspection.
+Results logged to /home/centos/.gem/ruby/gems/radcli-1.0.0/ext/radcli/gem_make.out
+[centos@ip-172-31-0-200 ~]$ 
+```
+
+The gem seems to include some header krb5/krb5.h
+
+The smart_proxy_realm_ad_plugin has a dependency on this package "radcli":
+
+https://github.com/theforeman/smart_proxy_realm_ad_plugin/blob/master/lib/smart_proxy_realm_ad/provider.rb#L2
+
+It also published here: https://rubygems.org/gems/radcli
+
+We run the gem install we get below:
+
+```bash
+> gem install radcli
+[centos@ip-172-31-0-200 ~]$ gem install radcli
+Building native extensions.  This could take a while...
+ERROR:  Error installing radcli:
+	ERROR: Failed to build gem native extension.
+
+    /usr/bin/ruby extconf.rb
+creating Makefile
+
+make "DESTDIR="
+gcc -I. -I/usr/include -I/usr/include/ruby/backward -I/usr/include -I. -I/usr/include -I/home/centos/.gem/ruby/gems/radcli-1.0.0/ext/radcli/ext/radcli    -fPIC -O2 -g -pipe -Wall -Wp,-D_FORTIFY_SOURCE=2 -fexceptions -fstack-protector-strong --param=ssp-buffer-size=4 -grecord-gcc-switches -mtune=generic -fPIC -m64 -o radcli.o -c radcli.c
+In file included from ./radcli.h:5:0,
+                 from radcli.c:2:
+./adconn.h:29:23: fatal error: krb5/krb5.h: No such file or directory
+ #include <krb5/krb5.h>
+                       ^
+compilation terminated.
+make: *** [radcli.o] Error 1
+
+
+Gem files will remain installed in /home/centos/.gem/ruby/gems/radcli-1.0.0 for inspection.
+Results logged to /home/centos/.gem/ruby/gems/radcli-1.0.0/ext/radcli/gem_make.out
+[centos@ip-172-31-0-200 ~]$ 
+```
+This C library need this header file. It should be available among these packages:
+
+```
+sudo yum -y install git make gcc automake autoconf krb5-devel openldap-devel cyrus-sasl-devel cyrus-sasl-gssapi
+```
+
+We try one at a time:
+```
+sudo yum -y install krb5-devel
+...
+[centos@ip-172-31-0-200 ~]$ sudo find / -name krb5.h
+/usr/include/krb5/krb5.h
+/usr/include/krb5.h
+[centos@ip-172-31-0-200 ~]$ 
+```
+
+We try again:
+```bash
+> gem install radcli
+```
+
+We get: 
+```bash
+[centos@ip-172-31-0-200 ~]$ gem install radcli
+Building native extensions.  This could take a while...
+ERROR:  Error installing radcli:
+	ERROR: Failed to build gem native extension.
+
+    /usr/bin/ruby extconf.rb
+creating Makefile
+
+make "DESTDIR="
+gcc -I. -I/usr/include -I/usr/include/ruby/backward -I/usr/include -I. -I/usr/include -I/home/centos/.gem/ruby/gems/radcli-1.0.0/ext/radcli/ext/radcli    -fPIC -O2 -g -pipe -Wall -Wp,-D_FORTIFY_SOURCE=2 -fexceptions -fstack-protector-strong --param=ssp-buffer-size=4 -grecord-gcc-switches -mtune=generic -fPIC -m64 -o radcli.o -c radcli.c
+In file included from ./radcli.h:5:0,
+                 from radcli.c:2:
+./adconn.h:30:18: fatal error: ldap.h: No such file or directory
+ #include <ldap.h>
+                  ^
+compilation terminated.
+make: *** [radcli.o] Error 1
+
+
+Gem files will remain installed in /home/centos/.gem/ruby/gems/radcli-1.0.0 for inspection.
+Results logged to /home/centos/.gem/ruby/gems/radcli-1.0.0/ext/radcli/gem_make.out
+[centos@ip-172-31-0-200 ~]$ u
+```
+
+We install
+```bash
+sudo yum -y install openldap-devel
+```
+
+Then it works:
+```bash
+
+Installed:
+  openldap-devel.x86_64 0:2.4.44-21.el7_6                                                                                            
+
+Dependency Installed:
+  cyrus-sasl.x86_64 0:2.1.26-23.el7                              cyrus-sasl-devel.x86_64 0:2.1.26-23.el7                             
+
+Complete!
+[centos@ip-172-31-0-200 ~]$ gem install radcli
+Building native extensions.  This could take a while...
+Successfully installed radcli-1.0.0
+Parsing documentation for radcli-1.0.0
+unable to convert "\x81" from ASCII-8BIT to UTF-8 for lib/radcli.so, skipping
+Installing ri documentation for radcli-1.0.0
+1 gem installed
+```
+
+This is our installed RPM history:
+```bash
+openldap-devel-2.4.44-21.el7_6.x86_64         tor 11 apr 2019 09:16:59
+cyrus-sasl-devel-2.1.26-23.el7.x86_64         tor 11 apr 2019 09:16:59
+cyrus-sasl-2.1.26-23.el7.x86_64               tor 11 apr 2019 09:16:58
+pcre-devel-8.32-17.el7.x86_64                 tor 11 apr 2019 09:15:29
+libverto-devel-0.2.5-4.el7.x86_64             tor 11 apr 2019 09:15:29
+libsepol-devel-2.5-10.el7.x86_64              tor 11 apr 2019 09:15:29
+libselinux-devel-2.5-14.1.el7.x86_64          tor 11 apr 2019 09:15:29
+libcom_err-devel-1.42.9-13.el7.x86_64         tor 11 apr 2019 09:15:29
+krb5-devel-1.15.1-37.el7_6.x86_64             tor 11 apr 2019 09:15:29
+keyutils-libs-devel-1.5.8-3.el7.x86_64        tor 11 apr 2019 09:15:29
+ruby-devel-2.0.0.648-34.el7_6.x86_64          tor 11 apr 2019 09:08:27
+gcc-4.8.5-36.el7_6.1.x86_64                   tor 11 apr 2019 09:08:27
+```
+
 # References
 
 ## Foreman 1.20
