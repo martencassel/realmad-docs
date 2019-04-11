@@ -503,6 +503,20 @@ The logs:
 2019-04-11T10:03:11  [I] 
 ```
 
+If the smart-proxy cant find the plugin provider, where did it go on the host filesystem ? 
+Each plugin has a provider.rb file, so we search for this file on the host:
+
+```bash
+[root@ip-172-31-0-200 foreman-proxy]# sudo find / -name provider.rb
+/usr/share/foreman/app/services/host_info/provider.rb
+/usr/share/foreman/app/services/medium_providers/provider.rb
+/usr/share/foreman-proxy/lib/proxy/provider.rb
+/usr/share/foreman-proxy/modules/realm_freeipa/provider.rb
+/usr/local/share/gems/gems/smart_proxy_realm_ad_plugin-0.1/lib/smart_proxy_realm_ad/provider.rb
+/opt/puppetlabs/puppet/lib/ruby/vendor_ruby/puppet/provider.rb
+/opt/theforeman/tfm/root/usr/share/gems/gems/fog-core-1.45.0/lib/fog/core/provider.rb
+[root@ip-172-31-0-200 foreman-proxy]# 
+```
 
 # Installing the plugin
 
