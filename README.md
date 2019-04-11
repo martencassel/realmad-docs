@@ -108,6 +108,10 @@ Installing             Done                                               [100%]
   The full log is at /var/log/foreman-installer/foreman.log
 ```
 
+## The WebUI proxy settings 
+
+![Smart Proxys](foreman_infra_smart_proxies.png)
+
 ## The installer will install foreman-proxy 
 
 ```bash
