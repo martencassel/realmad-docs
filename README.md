@@ -116,112 +116,6 @@ Installing             Done                                               [100%]
 
 ![Smart Proxys](foreman_infra_setup_realm_ad.png)
 
-## Foreman setup
-
-The initial smart-proxy is not a realm proxy. It doesnt support this feature. We have
-to enable it. If its enabled we should be able to add the realm and choose the proxy from the dropdown above.
-
-## Editing the proxy settings
-
-```bash
-[centos@ip-172-31-0-200 settings.d]$ cd /etc/foreman-proxy/settings.d/
-[centos@ip-172-31-0-200 settings.d]$ ls -l 
-total 112
--rw-r-----. 1 root foreman-proxy  317 11 apr 08.52 bmc.yml
--rw-r-----. 1 root foreman-proxy  459 11 apr 08.52 dhcp_isc.yml
--rw-r-----. 1 root foreman-proxy  214 11 apr 08.52 dhcp_libvirt.yml
--rw-r--r--. 1 root root           596 12 feb 13.48 dhcp_native_ms.yml
--rw-r-----. 1 root foreman-proxy  471 11 apr 08.52 dhcp.yml
--rw-r--r--. 1 root root           195 12 feb 13.48 dns_dnscmd.yml
--rw-r-----. 1 root foreman-proxy  213 11 apr 08.52 dns_libvirt.yml
--rw-r-----. 1 root foreman-proxy  535 11 apr 08.52 dns_nsupdate_gss.yml
--rw-r-----. 1 root foreman-proxy  198 11 apr 08.52 dns_nsupdate.yml
--rw-r-----. 1 root foreman-proxy  327 11 apr 08.52 dns.yml
--rw-r--r--. 1 root root            92 12 feb 13.48 facts.yml
--rw-r--r--. 1 root root           353 12 feb 13.48 httpboot.yml
--rw-r-----. 1 root foreman-proxy   76 11 apr 08.52 logs.yml
--rw-r-----. 1 root foreman-proxy  124 11 apr 08.52 puppetca_hostname_whitelisting.yml
--rw-r-----. 1 root foreman-proxy  150 11 apr 08.52 puppetca_token_whitelisting.yml
--rw-r-----. 1 root foreman-proxy  124 11 apr 08.52 puppetca.yml
--rw-r-----. 1 root foreman-proxy  307 11 apr 08.52 puppet_proxy_customrun.yml
--rw-r-----. 1 root foreman-proxy 1135 11 apr 08.52 puppet_proxy_legacy.yml
--rw-r-----. 1 root foreman-proxy  284 11 apr 08.52 puppet_proxy_mcollective.yml
--rw-r-----. 1 root foreman-proxy  785 11 apr 08.52 puppet_proxy_puppet_api.yml
--rw-r-----. 1 root foreman-proxy  325 11 apr 08.52 puppet_proxy_puppetrun.yml
--rw-r-----. 1 root foreman-proxy  125 11 apr 08.52 puppet_proxy_salt.yml
--rw-r-----. 1 root foreman-proxy  560 11 apr 08.52 puppet_proxy_ssh.yml
--rw-r-----. 1 root foreman-proxy  411 11 apr 08.52 puppet.yml
--rw-r-----. 1 root foreman-proxy  235 12 feb 13.48 realm_freeipa.yml
--rw-r-----. 1 root foreman-proxy  176 11 apr 08.52 realm.yml
--rw-r-----. 1 root foreman-proxy 1109 11 apr 08.52 templates.yml
--rw-r-----. 1 root foreman-proxy  170 11 apr 08.52 tftp.yml
-[centos@ip-172-31-0-200 settings.d]$ 
-```
-
-```bash
-[centos@ip-172-31-0-200 settings.d]$ sudo cat realm.yml 
----
-# Can be true, false, or http/https to enable just one of the protocols
-:enabled: false
-
-# Available providers:
-#   realm_ad
-#   realm_freeipa
-:use_provider: realm_freeipa
-[centos@ip-172-31-0-200 settings.d]$ 
-```
-
-We modify this file as below:
-```bash
-[centos@ip-172-31-0-200 settings.d]$ sudo cat realm.yml 
----
-# Can be true, false, or http/https to enable just one of the protocols
-:enabled: true
-
-# Available providers:
-#   realm_ad
-#   realm_freeipa
-:use_provider: realm_ad
-[centos@ip-172-31-0-200 settings.d]$ 
-```
-
-We restart foreman-proxy:
-```bash
-sudo systemctl restart foreman-proxy
-```
-
-The foreman-proxy server will display this in its logs file:
-```bash
-[centos@ip-172-31-0-200 settings.d]$ sudo cat /var/log/foreman-proxy/proxy.log|grep "Disabling"
-2019-04-11T09:37:51  [E] Disabling all modules in the group ['realm']: following providers are not available ['realm_ad']
-[centos@ip-172-31-0-200 settings.d]$ 
-```
-
-The following code in foreman-proxy will load the plugin:
-
-https://github.com/theforeman/smart-proxy/blob/ca32f0afbd5e68d1adc8934dc8f7f0f85b8a9256/lib/proxy/plugin_initializer.rb#L52
-
-# Installing the plugin
-
-```bash
-[centos@ip-172-31-0-200 settings.d]$ sudo gem install smart_proxy_realm_ad_plugin
-Fetching: rake-compiler-1.0.7.gem (100%)
-Successfully installed rake-compiler-1.0.7
-Fetching: radcli-1.0.0.gem (100%)
-Building native extensions.  This could take a while...
-Successfully installed radcli-1.0.0
-Fetching: smart_proxy_realm_ad_plugin-0.1.gem (100%)
-Successfully installed smart_proxy_realm_ad_plugin-0.1
-Parsing documentation for rake-compiler-1.0.7
-Installing ri documentation for rake-compiler-1.0.7
-Parsing documentation for radcli-1.0.0
-Installing ri documentation for radcli-1.0.0
-Parsing documentation for smart_proxy_realm_ad_plugin-0.1
-Installing ri documentation for smart_proxy_realm_ad_plugin-0.1
-3 gems installed
-```
-
-
 
 ## The installer will install foreman-proxy 
 
@@ -453,6 +347,112 @@ keyutils-libs-devel-1.5.8-3.el7.x86_64        tor 11 apr 2019 09:15:29
 ruby-devel-2.0.0.648-34.el7_6.x86_64          tor 11 apr 2019 09:08:27
 gcc-4.8.5-36.el7_6.1.x86_64                   tor 11 apr 2019 09:08:27
 ```
+
+## Foreman setup
+
+The initial smart-proxy is not a realm proxy. It doesnt support this feature. We have
+to enable it. If its enabled we should be able to add the realm and choose the proxy from the dropdown above.
+
+## Editing the proxy settings
+
+```bash
+[centos@ip-172-31-0-200 settings.d]$ cd /etc/foreman-proxy/settings.d/
+[centos@ip-172-31-0-200 settings.d]$ ls -l 
+total 112
+-rw-r-----. 1 root foreman-proxy  317 11 apr 08.52 bmc.yml
+-rw-r-----. 1 root foreman-proxy  459 11 apr 08.52 dhcp_isc.yml
+-rw-r-----. 1 root foreman-proxy  214 11 apr 08.52 dhcp_libvirt.yml
+-rw-r--r--. 1 root root           596 12 feb 13.48 dhcp_native_ms.yml
+-rw-r-----. 1 root foreman-proxy  471 11 apr 08.52 dhcp.yml
+-rw-r--r--. 1 root root           195 12 feb 13.48 dns_dnscmd.yml
+-rw-r-----. 1 root foreman-proxy  213 11 apr 08.52 dns_libvirt.yml
+-rw-r-----. 1 root foreman-proxy  535 11 apr 08.52 dns_nsupdate_gss.yml
+-rw-r-----. 1 root foreman-proxy  198 11 apr 08.52 dns_nsupdate.yml
+-rw-r-----. 1 root foreman-proxy  327 11 apr 08.52 dns.yml
+-rw-r--r--. 1 root root            92 12 feb 13.48 facts.yml
+-rw-r--r--. 1 root root           353 12 feb 13.48 httpboot.yml
+-rw-r-----. 1 root foreman-proxy   76 11 apr 08.52 logs.yml
+-rw-r-----. 1 root foreman-proxy  124 11 apr 08.52 puppetca_hostname_whitelisting.yml
+-rw-r-----. 1 root foreman-proxy  150 11 apr 08.52 puppetca_token_whitelisting.yml
+-rw-r-----. 1 root foreman-proxy  124 11 apr 08.52 puppetca.yml
+-rw-r-----. 1 root foreman-proxy  307 11 apr 08.52 puppet_proxy_customrun.yml
+-rw-r-----. 1 root foreman-proxy 1135 11 apr 08.52 puppet_proxy_legacy.yml
+-rw-r-----. 1 root foreman-proxy  284 11 apr 08.52 puppet_proxy_mcollective.yml
+-rw-r-----. 1 root foreman-proxy  785 11 apr 08.52 puppet_proxy_puppet_api.yml
+-rw-r-----. 1 root foreman-proxy  325 11 apr 08.52 puppet_proxy_puppetrun.yml
+-rw-r-----. 1 root foreman-proxy  125 11 apr 08.52 puppet_proxy_salt.yml
+-rw-r-----. 1 root foreman-proxy  560 11 apr 08.52 puppet_proxy_ssh.yml
+-rw-r-----. 1 root foreman-proxy  411 11 apr 08.52 puppet.yml
+-rw-r-----. 1 root foreman-proxy  235 12 feb 13.48 realm_freeipa.yml
+-rw-r-----. 1 root foreman-proxy  176 11 apr 08.52 realm.yml
+-rw-r-----. 1 root foreman-proxy 1109 11 apr 08.52 templates.yml
+-rw-r-----. 1 root foreman-proxy  170 11 apr 08.52 tftp.yml
+[centos@ip-172-31-0-200 settings.d]$ 
+```
+
+```bash
+[centos@ip-172-31-0-200 settings.d]$ sudo cat realm.yml 
+---
+# Can be true, false, or http/https to enable just one of the protocols
+:enabled: false
+
+# Available providers:
+#   realm_ad
+#   realm_freeipa
+:use_provider: realm_freeipa
+[centos@ip-172-31-0-200 settings.d]$ 
+```
+
+We modify this file as below:
+```bash
+[centos@ip-172-31-0-200 settings.d]$ sudo cat realm.yml 
+---
+# Can be true, false, or http/https to enable just one of the protocols
+:enabled: true
+
+# Available providers:
+#   realm_ad
+#   realm_freeipa
+:use_provider: realm_ad
+[centos@ip-172-31-0-200 settings.d]$ 
+```
+
+We restart foreman-proxy:
+```bash
+sudo systemctl restart foreman-proxy
+```
+
+The foreman-proxy server will display this in its logs file:
+```bash
+[centos@ip-172-31-0-200 settings.d]$ sudo cat /var/log/foreman-proxy/proxy.log|grep "Disabling"
+2019-04-11T09:37:51  [E] Disabling all modules in the group ['realm']: following providers are not available ['realm_ad']
+[centos@ip-172-31-0-200 settings.d]$ 
+```
+
+The following code in foreman-proxy will load the plugin:
+
+https://github.com/theforeman/smart-proxy/blob/ca32f0afbd5e68d1adc8934dc8f7f0f85b8a9256/lib/proxy/plugin_initializer.rb#L52
+
+# Installing the plugin
+
+```bash
+[centos@ip-172-31-0-200 settings.d]$ sudo gem install smart_proxy_realm_ad_plugin
+Fetching: rake-compiler-1.0.7.gem (100%)
+Successfully installed rake-compiler-1.0.7
+Fetching: radcli-1.0.0.gem (100%)
+Building native extensions.  This could take a while...
+Successfully installed radcli-1.0.0
+Fetching: smart_proxy_realm_ad_plugin-0.1.gem (100%)
+Successfully installed smart_proxy_realm_ad_plugin-0.1
+Parsing documentation for rake-compiler-1.0.7
+Installing ri documentation for rake-compiler-1.0.7
+Parsing documentation for radcli-1.0.0
+Installing ri documentation for radcli-1.0.0
+Parsing documentation for smart_proxy_realm_ad_plugin-0.1
+Installing ri documentation for smart_proxy_realm_ad_plugin-0.1
+3 gems installed
+```
+
 
 # References
 
