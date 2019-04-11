@@ -521,6 +521,20 @@ Each plugin has a provider.rb file, so we search for this file on the host:
 Somehow the foreman-proxy process will try to load the realm plugin files ? How can we observe this ? 
 We will run a strace on the smart-proxy process, like below:
 
+```bash
+[root@ip-172-31-0-200 ~]# cat /var/log/strace.log|grep provider.rb
+open("/usr/share/gems/gems/logging-2.2.2/lib/proxy/provider.rb", O_RDONLY|O_CLOEXEC) = -1 ENOENT (No such file or directory)
+open("/usr/share/gems/gems/multi_json-1.12.2/lib/proxy/provider.rb", O_RDONLY|O_CLOEXEC) = -1 ENOENT (No such file or directory)
+open("/usr/share/gems/gems/little-plugger-1.1.3/lib/proxy/provider.rb", O_RDONLY|O_CLOEXEC) = -1 ENOENT (No such file or directory)
+open("/usr/share/foreman-proxy/lib/proxy/provider.rb", O_RDONLY|O_CLOEXEC) = 7
+open("/usr/share/foreman-proxy/lib/proxy/provider.rb", O_RDONLY|O_CLOEXEC) = 7
+lstat("/usr/share/foreman-proxy/lib/proxy/provider.rb", {st_mode=S_IFREG|0644, st_size=436, ...}) = 0
+lstat("lib/proxy/provider.rb", {st_mode=S_IFREG|0644, st_size=436, ...}) = 0
+lstat("modules/dhcp_common/isc/omapi_provider.rb", {st_mode=S_IFREG|0644, st_size=7909, ...}) = 0
+lstat("modules/realm_freeipa/provider.rb", {st_mode=S_IFREG|0644, st_size=4340, ...}) = 0
+[root@ip-172-31-0-200 ~]# 
+```
+
 # strace -o /var/log/strace.log ruby /usr/share/foreman-proxy/bin/smart-proxy
 
 We get a long log file
