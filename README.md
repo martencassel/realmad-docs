@@ -535,6 +535,19 @@ lstat("modules/realm_freeipa/provider.rb", {st_mode=S_IFREG|0644, st_size=4340, 
 [root@ip-172-31-0-200 ~]# 
 ```
 
+```bash
+[root@ip-172-31-0-200 ~]# find / -name "realm_freeipa"
+/usr/share/foreman-proxy/modules/realm_freeipa
+[root@ip-172-31-0-200 ~]# ls -l /usr/share/foreman-proxy/modules/realm_freeipa/
+total 24
+-rw-r--r--. 1 root root  642 12 feb 13.48 configuration_loader.rb
+-rw-r--r--. 1 root root 1304 12 feb 13.48 ipa_config_parser.rb
+-rw-r--r--. 1 root root 4340 12 feb 13.48 provider.rb
+-rw-r--r--. 1 root root  434 12 feb 13.48 realm_freeipa_plugin.rb
+-rw-r--r--. 1 root root   90 12 feb 13.48 realm_freeipa.rb
+[root@ip-172-31-0-200 ~]# 
+```
+
 # strace -o /var/log/strace.log ruby /usr/share/foreman-proxy/bin/smart-proxy
 
 We get a long log file
