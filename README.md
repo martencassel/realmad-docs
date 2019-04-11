@@ -433,7 +433,80 @@ The following code in foreman-proxy will load the plugin:
 
 https://github.com/theforeman/smart-proxy/blob/ca32f0afbd5e68d1adc8934dc8f7f0f85b8a9256/lib/proxy/plugin_initializer.rb#L52
 
+# Enabling extended debug logs in smart-proxy
+Set verbose logging to see how smart-proxy loads the realm plugin
+
+```bash
+> cat settings.yml|grep LOG -C 5
+# ssl_certificate, ssl_ca_file, and ssl_private_key correspondingly
+# default values for https_port is 8443
+:https_port: 8443
+#:http_port: 8000
+# Log configuration
+# Uncomment and modify if you want to change the location of the log file or use STDOUT or SYSLOG values
+:log_file: /var/log/foreman-proxy/proxy.log
+# Uncomment and modify if you want to change the log level
+# WARN, DEBUG, ERROR, FATAL, INFO, UNKNOWN
+:log_level: INFO
+# The maximum size of a log file before it's rolled (in MiB)
+```
+
+```bash
+[root@ip-172-31-0-200 foreman-proxy]# cat settings.yml|grep log_level
+:log_level: DEBUG
+[root@ip-172-31-0-200 foreman-proxy]# sudo systemctl restart foreman-proxy
+[root@ip-172-31-0-200 foreman-proxy]# 
+```
+
+The logs:
+```bash
+[root@ip-172-31-0-200 foreman-proxy]# tail -f /var/log/foreman-proxy/proxy.log
+         9c:9c:d7:17:4d:5e:ec:c6:9b:77:cd:c3:4e:1f:4e:9d:c6:7f:
+         54:c6:56:ab:81:3e:95:e2
+
+2019-04-11T10:02:36  [D] Rack::Handler::WEBrick is mounted on /.
+2019-04-11T10:02:36  [I] WEBrick::HTTPServer#start: pid=2487 port=8443
+2019-04-11T10:02:36  [I] Smart proxy has launched on 1 socket(s), waiting for requests
+2019-04-11T10:02:36  [D] Initializing puppet class cache for 'production' environment
+2019-04-11T10:02:36  [D] Initializing puppet class cache for 'common' environment
+2019-04-11T10:02:36  [D] Initializing puppet class cache for 'development' environment
+2019-04-11T10:02:36  [I] Finished puppet class cache initialization
+2019-04-11T10:03:10  [I] going to shutdown ...
+2019-04-11T10:03:10  [I] WEBrick::HTTPServer#start done.
+2019-04-11T10:03:10  [D] 'tftp' settings: 'enabled': https, 'tftp_connect_timeout': 10 (default), 'tftp_dns_timeout': 10 (default), 'tftp_read_timeout': 60 (default), 'tftproot': /var/lib/tftpboot (default)
+2019-04-11T10:03:10  [D] 'tftp' ports: 'http': false, 'https': true
+2019-04-11T10:03:10  [D] 'puppetca' settings: 'enabled': https, 'ssldir': /etc/puppetlabs/puppet/ssl, 'use_provider': puppetca_hostname_whitelisting (default)
+2019-04-11T10:03:10  [D] 'puppetca' ports: 'http': false, 'https': true
+2019-04-11T10:03:10  [D] 'puppet' settings: 'enabled': https, 'puppet_version': 5.5.12, 'use_provider': [:puppet_proxy_puppet_api]
+2019-04-11T10:03:10  [D] 'puppet' ports: 'http': false, 'https': true
+2019-04-11T10:03:10  [D] 'realm' settings: 'enabled': true, 'use_provider': realm_ad
+2019-04-11T10:03:10  [D] 'realm' ports: 'http': true, 'https': true
+2019-04-11T10:03:10  [D] 'logs' settings: 'enabled': https
+2019-04-11T10:03:10  [D] 'logs' ports: 'http': false, 'https': true
+2019-04-11T10:03:10  [D] Providers ['puppetca_hostname_whitelisting'] are going to be configured for 'puppetca'
+2019-04-11T10:03:10  [D] Providers ['puppet_proxy_puppet_api'] are going to be configured for 'puppet'
+2019-04-11T10:03:10  [E] Disabling all modules in the group ['realm']: following providers are not available ['realm_ad']
+2019-04-11T10:03:10  [D] 'puppetca_hostname_whitelisting' settings: 'autosignfile': /etc/puppetlabs/puppet/autosign.conf, 'ssldir': /etc/puppetlabs/puppet/ssl, 'use_provider': puppetca_hostname_whitelisting
+2019-04-11T10:03:10  [D] 'puppet_proxy_puppet_api' settings: 'api_timeout': 30 (default), 'classes_retriever': apiv3, 'environments_retriever': apiv3, 'puppet_ssl_ca': /etc/puppetlabs/puppet/ssl/certs/ca.pem, 'puppet_ssl_cert': /etc/puppetlabs/puppet/ssl/certs/ip-172-31-0-200.eu-central-1.compute.internal.pem, 'puppet_ssl_key': /etc/puppetlabs/puppet/ssl/private_keys/ip-172-31-0-200.eu-central-1.compute.internal.pem, 'puppet_url': https://ip-172-31-0-200.eu-central-1.compute.internal:8140, 'puppet_version': 5.5.12, 'use_provider': [:puppet_proxy_puppet_api]
+2019-04-11T10:03:10  [I] Successfully initialized 'foreman_proxy'
+2019-04-11T10:03:10  [I] Successfully initialized 'tftp'
+2019-04-11T10:03:10  [I] Successfully initialized 'puppetca_hostname_whitelisting'
+2019-04-11T10:03:10  [I] Successfully initialized 'puppetca'
+2019-04-11T10:03:10  [I] Started puppet class cache initialization
+2019-04-11T10:03:10  [I] Successfully initialized 'puppet_proxy_puppet_api'
+2019-04-11T10:03:10  [I] Successfully initialized 'puppet'
+2019-04-11T10:03:10  [D] Log buffer API initialized, available capacity: 2000/1000
+2019-04-11T10:03:10  [I] Successfully initialized 'logs'
+2019-04-11T10:03:11  [I] WEBrick 1.3.1
+2019-04-11T10:03:11  [I] ruby 2.0.0 (2015-12-16) [x86_64-linux]
+2019-04-11T10:03:11  [D] TCPServer.new(::, 8443)
+2019-04-11T10:03:11  [I] 
+```
+
+
 # Installing the plugin
+
+After resolving the depenceies with realm the below will work.
 
 ```bash
 [centos@ip-172-31-0-200 settings.d]$ sudo gem install smart_proxy_realm_ad_plugin
