@@ -508,15 +508,25 @@ Each plugin has a provider.rb file, so we search for this file on the host:
 
 # Setup the plugin 
 
-I went to https://projects.theforeman.org/projects/foreman/wiki/How_to_Install_a_Smart-Proxy_Plugin
+The instructions on how to install a plugin are here: https://projects.theforeman.org/projects/foreman/wiki/How_to_Install_a_Smart-Proxy_Plugin
+In the case of our plugin, the section "From Source Installation" is what we need.
 
-This plugin comes as a Gem, go to section 'https://projects.theforeman.org/projects/foreman/wiki/How_to_Install_a_Smart-Proxy_Plugin'
+I think that this  instruction is really hard to understand.
+It can also be easy to mix a foreman plugin with a foreman-proxy plugin. 
+
+We need to create a Gemfile.local.rb with the following content:
 
 ```
-Chances are plugin that developers already created bundler configuration file that you can use. Check bundler.d/ directory located in plugin gem source directory. Otherwise, It is recommended to use ~foreman-proxy/bundler.d/Gemfile.local.rb so that it is not overwritten by future upgrades. If it's published on rubygems.org, just add the name and the latest released version will be downloaded. Add to bundler.d/Gemfile.local.rb:
-```
+gem 'smart_proxy_realm_ad_plugin'
+``
 
-This is how to setup:
+and place it in the following path
+
+/usr/share/foreman-proxy/bundler.d/Gemfile.local.rb
+
+This path is refered to as ~foreman-proxy/bundler.d in the Smart-Proxy plugin guide.
+
+Here is the details
 
 ```bash
 [root@ip-172-31-0-200 bundler.d]# find / -name bundler.d
