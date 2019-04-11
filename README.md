@@ -112,6 +112,15 @@ Installing             Done                                               [100%]
 
 ![Smart Proxys](foreman_infra_smart_proxies.png)
 
+![Smart Proxys](foreman_infra_realms_setup.png)
+
+![Smart Proxys](foreman_infra_setup_realm_ad.png)
+
+## Foreman setup
+
+The initial smart-proxy is not a realm proxy. It doesnt support this feature. We have
+to enable it. If its enabled we should be able to add the realm and choose the proxy from the dropdown above.
+
 ## The installer will install foreman-proxy 
 
 ```bash
