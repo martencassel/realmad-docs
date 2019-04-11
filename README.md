@@ -597,7 +597,14 @@ We then check the log file:
 2019-04-11T20:26:41  [D] 'puppet_proxy_puppet_api' settings: 'api_timeout': 30 (default), 'classes_retriever': apiv3, 'environments_retriever': apiv3, 'puppet_ssl_ca': /etc/puppetlabs/puppet/ssl/certs/ca.pem, 'puppet_ssl_cert': /etc/puppetlabs/puppet/ssl/certs/ip-172-31-0-200.eu-central-1.compute.internal.pem, 'puppet_ssl_key': /etc/puppetlabs/puppet/ssl/private_keys/ip-172-31-0-200.eu-central-1.compute.internal.pem, 'puppet_url': https://ip-172-31-0-200.eu-central-1.compute.internal:8140, 'puppet_version': 5.5.12, 'use_provider': [:puppet_proxy_puppet_api]
 2019-04-11T20:26:41  [D] 'realm_ad' settings: 'domain_controller': dc.example.com, 'keytab_path': /etc/foreman-proxy/realm_ad.keytab, 'principal': realm-proxy@EXAMPLE.COM, 'realm': EXAMPLE.COM, 'use_provider': realm_ad
 ```
+# Configure foremam-proxy in the WebGUI
 
+After the smart-proxy server have managed to load our plugin, we can activate it through
+the foreman web-ui here, we click on the refresh feature button and the below view will be shown.
+
+![Smart Proxys](foreman_after_plugin_activate_proxy.png)
+
+![Smart Proxys](foreman_after_plugin_activate_proxy2.png)
 
 
 # Installing the plugin
