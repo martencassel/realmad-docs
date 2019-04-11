@@ -1,9 +1,12 @@
-# realmad-docs
+# realmad-notes
+
+This document is my notes on how to set up foreman, katello with Active Directory and the
+smart_proxy_realm_ad_plugin .
 
 # Provision servers
 
-## Provision a Centos 7 x86 instance on AWS with a fixed Elastic IP Address
-## Provision a Windows Server 2019 server. Configure as a Domain Controller DC01.
+* Provision a Centos 7 x86 instance on AWS with a fixed Elastic IP Address
+* Provision a Windows Server 2019 server. Configure as a Domain Controller DC01.
 
 # Login
 ```
