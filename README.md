@@ -607,6 +607,28 @@ the foreman web-ui here, we click on the refresh feature button and the below vi
 ![Smart Proxys](foreman_after_plugin_activate_proxy2.png)
 
 
+# Creating the Realm
+
+The creat realm dialog will now give us a realm proxy dropdown option.
+
+![Smart Proxys](infra_realm_create_realm_working.png)
+
+We can see the created realm:
+
+![Smart Proxys](realm_created.png)
+
+# Host Create
+If we create a host associated with the realm EXAMPLE.COM the foreman server will 
+send a request to the smart-proxy realm ad plugin to add this host to the realm.
+
+# Host Reinstall
+If we reinstall a host, likewise the foreman server will send q request to the plugin,
+and request a reset of the host servers credential (computer account) in the domain.
+
+# Host Delete
+If we delete a host, likewise the foreman server will send request to the plugin,
+and request a deletion of the host server computer account in the domain.
+
 # Installing the plugin
 
 After resolving the depenceies with realm the below will work.
