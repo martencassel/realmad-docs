@@ -29,7 +29,40 @@ Create the following file /etc/foreman-proxy/settings.d/realm.yml with the below
 #   realm_freeipa
 :use_provider: realm_ad
 ```
-## Step 4. Restart smart-proxy
+
+## Step 4. Add settings
+The plugin uses a settings file to be able to work. Its located at /etc/foreman-proxy/settings.d/realm_ad.yml.
+
+Add a settings file to the plugin at /etc/foreman-proxy/settings.d/realm_ad.yml  like the following
+
+```bash
+$ cat /etc/foreman-proxy/settings.d/realm_ad.yml 
+---
+# Authentication for Kerberos-based Realms
+:realm: EXAMPLE.COM
+
+# Kerberos pricipal used to authenticate against Active Directory
+:principal: realm-proxy@EXAMPLE.COM
+
+# Path to the keytab used to authenticate against Active Directory
+:keytab_path:  /etc/foreman-proxy/realm_ad.keytab
+
+# FQDN of the Domain Controller
+:domain_controller: dc.example.com
+
+# Optional: OU where the machine account shall be placed
+#:ou: OU=Linux,OU=Servers,DC=example,DC=com
+
+# Optional: Prefix for the computername
+#:computername_prefix: &apos;&apos;
+
+# Optional: Generate the computername by calculating the SHA256 hexdigest of the hostname
+#:computername_hash: false
+
+# Optional:  use the fqdn of the host to generate the computername
+#:computername_use_fqdn: false
+```
+## Step 5. Restart smart-proxy
 
 Restart smart-proxy using 
 ```
