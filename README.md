@@ -1,7 +1,6 @@
-# Install smart-proxy-realm-ad 
+# Getting started with smart-proxy-realm-ad plugin
 
 Use this guide to install smart-proxy-realm-ad on a foreman server on Centos 7.
-
 
 ## Step 1. Install dependencies
 The plugin depends on a rubygem called radcli which uses C libraries.
