@@ -1,3 +1,55 @@
+# Step 1. Install dependencies
+The plugin depends on a rubygem called radcli which uses C libraries.
+
+```bash
+sudo yum install -y gcc ruby-devel krb5-devel openldap-devel
+gem install radcli
+```
+
+# Step 2. Installing the plugin
+Add the following to the file /usr/share/foreman-proxy/bundler.d/Gemfile.local.rb
+```
+gem 'smart_proxy_realm_ad_plugin'
+```
+This should make it possible for the smart-proxy to be able to load the plugin.
+
+# Step 3. Activating the plugin
+Create the following file /etc/foreman-proxy/settings.d/realm.yml with the below contents:
+
+```
+---
+# Can be true, false, or http/https to enable just one of the protocols
+:enabled: true
+
+# Available providers:
+#   realm_ad
+#   realm_freeipa
+:use_provider: realm_ad
+```
+# Step 4. Restart smart-proxy
+
+Restart smart-proxy using 
+```
+systemctl restart smart-proxy
+```
+
+# Step 5. Verify that the plugin has been loaded
+
+Look in the /var/log/foreman-proxy/proxy.log log to see if the plugin was loaded
+successfully. If it was loaded correctly it will look like this:
+
+```
+2019-04-11T20:26:41  [D] Providers ['realm_ad'] are going to be configured for 'realm'
+...
+2019-04-11T20:26:41  [D] 'realm_ad' settings: 'domain_controller': dc.example.com, 'keytab_path': /etc/foreman-proxy/realm_ad.keytab, 'principal': realm-proxy@EXAMPLE.COM, 'realm': EXAMPLE.COM, 'use_provider': realm_ad
+```
+
+If it fails to load the following will be logged
+```
+2019-04-11T09:37:51  [E] Disabling all modules in the group ['realm']: following providers are not available ['realm_ad']
+```
+
+
 # realmad-notes
 
 This document is my notes on how to set up foreman, katello with Active Directory and the
