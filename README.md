@@ -3,6 +3,9 @@ The plugin depends on a rubygem called radcli which uses C libraries.
 
 ```bash
 sudo yum install -y gcc ruby-devel krb5-devel openldap-devel
+```
+
+```bash
 gem install radcli
 ```
 
