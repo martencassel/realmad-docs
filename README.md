@@ -1,6 +1,9 @@
 ## Installation guide for smart-proxy-realm-ad plugin
 
-The plugin smart-proxy-realm-ad plugin can be used with foreman-smart-proxy project to integrate server management with Active Directory. This guide will show how to install the plugin on a Centos 7 host running foreman.
+The plugin smart-proxy-realm-ad plugin can be used 
+with foreman-smart-proxy project to integrate server management 
+with Active Directory. 
+This guide will show how to install the plugin on a Centos 7 host running foreman.
 
 ## Step 1. Install dependencies
 The plugin depends on a rubygem called radcli which uses C libraries.
