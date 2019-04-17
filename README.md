@@ -1,4 +1,4 @@
-## Install smart-proxy-realm-ad 
+# Install smart-proxy-realm-ad 
 
 Use this guide to install smart-proxy-realm-ad on a foreman server on Centos 7.
 
