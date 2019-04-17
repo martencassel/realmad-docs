@@ -117,8 +117,7 @@ If it fails to load the following will be logged
 2019-04-11T09:37:51  [E] Disabling all modules in the group ['realm']: following providers are not available ['realm_ad']
 ```
 
-
-# realmad-notes
+# Complete setup of server, foreman and the plugin with troubleshooting.
 
 This document is my notes on how to set up foreman, katello with Active Directory and the
 smart_proxy_realm_ad_plugin .
