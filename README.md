@@ -67,14 +67,42 @@ $ cat /etc/foreman-proxy/settings.d/realm_ad.yml
 # Optional:  use the fqdn of the host to generate the computername
 #:computername_use_fqdn: false
 ```
-## Step 5. Restart smart-proxy
+
+## Step 5. Create a keytab file
+
+A keytab can be created using the following commands:
+
+```bash
+>ktutil
+addent -password -p Administrator@EXAMPLE.COM -k 1 -e RC4-HMAC
+- enter password for username -
+wkt realm_ad.keytab
+q
+> kdestroy
+> kinit Administrator@EXAMPLE.COM -k -t realm_ad.keytab; 
+> klist
+Ticket cache: KEYRING:persistent:1000:1000
+Default principal: Administrator@EXAMPLE.COM
+
+Valid starting       Expires              Service principal
+2017-01-27 10:30:00  2017-01-27 20:30:00  krbtgt/EXAMPLE.COM@EXAMPLE.COM
+	renew until 2017-02-03 10:30:00
+```
+
+It can also be created using the msktutil program:
+
+```bash
+msktutil --update --use-service-account --account-name #youaccountname# --keytab /etc/foreman-proxy/realm_ad.keytab --dont-change-password --old-account-password #enterhere#
+```
+
+## Step 6. Restart smart-proxy
 
 Restart smart-proxy using 
 ```
 systemctl restart smart-proxy
 ```
 
-## Step 5. Verify that the plugin has been loaded
+## Step 7. Verify that the plugin has been loaded
 
 Look in the /var/log/foreman-proxy/proxy.log log to see if the plugin was loaded
 successfully. If it was loaded correctly it will look like this:
